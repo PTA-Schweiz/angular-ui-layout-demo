@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html ng-app="DemoApp">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width">
+  <title>UI Layout Demo</title>
+
+  <!-- Angular -->
+  <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
+
+  <!-- UI Bootstrap -->
+  <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- UI Layout -->
+  <script type="application/javascript" src="https://rawgit.com/angular-ui/ui-layout/master/src/ui-layout.js"></script>
+  <!--<link rel="stylesheet" href="https://rawgit.com/angular-ui/ui-layout/master/src/ui-layout.css">-->
+  <link rel="stylesheet" href="ui-layout_custom.css">
+  <style>
+    /* Type: Toolbar / Window: Top */
+
+    .layout .toolbar {
+      background: #000;
+      color: #fff;
+      font-size: 30px;
+      padding: 0 40px;
+    }
+
+    .layout .toolbar i {
+      vertical-align: middle;
+    }
+
+    .layout .toolbar i:hover {
+      color: #eee;
+      cursor: pointer;
+    }
+
+    .layout .toolbar .left {
+      float: left;
+    }
+
+    .layout .toolbar .right {
+      float: right;
+    }
+
+    .layout .toolbar .left i {
+      padding-right: 20px;
+    }
+
+    .layout .toolbar .right i {
+      padding-left: 20px;
+    }
+
+    /* Type: Toolpanel: / Window: Left, Right, Main Footer */
+
+    .layout .toolpanel {
+      background: #fff;
+      overflow: hidden;
+    }
+
+    /*
+    .layout .toolpanel.collapsed {
+      background: #ccc !important;
+    }
+    */
+
+    .layout .toolpanel button.toggle {
+      border: none;
+      padding: 2px 4px;
+      font-size: 22px;
+      line-height: 0;
+    }
+
+    .layout .toolpanel.left button.toggle,
+    .layout .toolpanel.footer button.toggle {
+      float: right;
+    }
+
+    .layout .ui-splitbar {
+      background: #666;
+    }
+
+    /* Type: Central / Window: Main Content  */
+
+    .layout .central,
+    .layout .central .nav-tabs > li.active > a,
+    .layout .central .nav-tabs > li.active > a:hover {
+      background: #eee;
+    }
+
+    .layout .central .nav-tabs > li > a:hover {
+      background: #e0e0e0;
+    }
+
+    .layout .central .nav-tabs {
+      background: #ccc;
+    }
+
+    .layout .central .nav {
+      padding: 5px 2px 0 2px;
+    }
+
+    .nav-tabs > li > a {
+      border-color: #eee #eee #ddd;
+      color: #000;
+    }
+  </style>
+
+  <!-- Angular Controller -->
+  <script type="application/javascript">
+    var app = angular.module('DemoApp', ['ui.layout', 'ui.bootstrap']);
+    app.controller('DemoController', function($scope, $timeout) {
+
+      // Init toolpanel collapsed states
+      $scope.layout = {
+        left: false,
+        right: false,
+        bottom: false
+
+      };
+
+      // Main Window Tabs
+      $scope.tabs = [
+        { title: 'Tab A', content: '' },
+        { title: 'Tab B', content: 'Content B' },
+        { title: 'Tab C', content: 'Content C' }
+      ];
+
+      // Toggle toolpanels
+      $scope.toggle = function(which) {
+        console.log('toggle', which);
+        $scope.layout[which] = !$scope.layout[which];
+      };
+
+      // Events
+      $scope.$on('ui.layout.loaded', function(evt, id){
+        console.log('loaded -', id);
+      });
+    });
+  </script>
+</head>
+
+<body ng-controller="DemoController" >
+
+  <!-- Window Layout -->
+  <div ui-layout="{ disableToggle: true, dividerSize: 0 }" class="layout" ui-layout-loaded="main-layout">
+
+    <!-- Top Window -->
+    <div ui-layout-container class="toolbar" size="50px">
+      <div class="left">
+        <i class="fa fa-home" aria-hidden="true"></i>
+      </div>
+      <div class="right">
+        <i class="fa fa-cog" aria-hidden="true"></i>
+        <i class="fa fa-sign-out" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <div ui-layout-container>
+      <div ui-layout="{ flow : 'column', dividerSize: 2 }" >
+
+        <!-- Left Window -->
+        <div ui-layout-container class="toolpanel left" ng-class="{ 'collapsed': layout.left }" collapsed="layout.left" size="200px" min-size="20px">
+          <button type="button" class="toggle btn btn-default" ng-click="toggle('left')">
+            <i class="fa" ng-class="{ 'fa-angle-double-left': !layout.left, 'fa-angle-double-right': layout.left }" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Main Window -->
+        <div ui-layout-container="central" class="main" min-size="300px">
+          <div ui-layout="{ dividerSize: 2 }" >
+
+            <!-- Main Window Content -->
+            <div ui-layout-container="central" class="central content"  min-size="150px">
+              <!-- Main Window Tabs -->
+              <uib-tabset active="active">
+                <uib-tab index="$index + 1" ng-repeat="tab in tabs" heading="{{ tab.title }}">
+                  {{ tab.content }}
+                </uib-tab>
+              </uib-tabset>
+            </div>
+
+            <!-- Main Window Footer -->
+            <div ui-layout-container class="toolpanel footer" ng-class="{ 'collapsed': layout.bottom }" collapsed="layout.bottom" size="64px" min-size="20px">
+              <button type="button" class="toggle btn btn-default" ng-click="toggle('bottom')">
+                <i class="fa" ng-class="{ 'fa-angle-double-down': !layout.bottom, 'fa-angle-double-up': layout.bottom }" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Window -->
+        <div ui-layout-container class="toolpanel right" ng-class="{ 'collapsed': layout.right }" collapsed="layout.right" size="200px" min-size="20px">
+          <button type="button" class="toggle btn btn-default" ng-click="toggle('right')">
+            <i class="fa" ng-class="{ 'fa-angle-double-right': !layout.right, 'fa-angle-double-left': layout.right }" aria-hidden="true"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
